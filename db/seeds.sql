@@ -1,7 +1,15 @@
-INSERT INTO employees (first_name, last_name, is_employee, is_manager, emp_role, emp_salary, department)
-VALUES ("Elliot", "Smith", true, true, 'Sales Rep', '50000', 'Sales Department' ),
-       ("Amira", "Afzal", true, true, 'Sales Rep', '50000', 'Sales Department'),
-       ("Christoper", "Lee", true, true, 'Sales Rep', '50000', 'Sales Department'),
-       ("Verónica", "Rodriguez", true, true, 'Sales Rep', '50000', 'Sales Department' ),
-       ("Igor", "Stein", true, true, 'Sales Rep', '50000', 'Sales Department');
+INSERT INTO departments (department_name)
+VALUES ("IT Department"),
+       ("Development Department");
+
+INSERT INTO employeeRoles (emp_roles, emp_salary, department_id)
+VALUES ("Intern", 20000, 1), ("Support", 50000, 1), ("Engineer", 80000, 2), ("Director", 120000, 2);
+
+
+INSERT INTO employees (first_name, last_name, emp_role, manager_id)
+VALUES ("Sammy", "Hagar", 4, NULL),
+       ("David", "Roth", 2, 1),
+       ("Alex", "Van", 3, 1),
+       ("Eddie", "Halen", 1, 3),
+       ("Michael", "Anthony", 3, 1);
        

@@ -3,6 +3,8 @@ const mysql = require('mysql2');
 const inquirer = require('inquirer'); /// npm init -y /// npm i inquirer
 const fs = require('fs');
 const { exit } = require('process');
+const cTable = require('console.table');
+
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -15,9 +17,9 @@ const db = mysql.createConnection(
     {
       host: 'localhost',
       // MySQL username,
-      user: '',
+      user: 'tm',
       // MySQL password
-      password: '',
+      password: 'passWORD',
       database: 'business_db'
     },
     console.log(`Connected to the business_db database.`)
@@ -60,28 +62,30 @@ const questionsRole = [
 },
 ];
 
-const questionsEmployee = [
-{
-    type: 'input',
-    message: 'Employee first name?',
-    name: 'empFirstName',
-},
-{
-    type: 'input',
-    message: 'Employee last name?',
-    name: 'empLastName',
-},
-{
-    type: 'input',
-    message: 'Employee role?',
-    name: 'empRole',
-},
-{
-    type: 'input',
-    message: 'Employee Manager?',
-    name: 'empManager',
-}
-];
+// const questionsEmployee = [
+// {
+//     type: 'input',
+//     message: 'Employee first name?',
+//     name: 'empFirstName',
+// },
+// {
+//     type: 'input',
+//     message: 'Employee last name?',
+//     name: 'empLastName',
+// },
+// {
+//     type: 'list',
+//     message: 'Employee role?',
+//     name: 'empRole',
+//     choices: newEmpRole
+// },
+// {
+//     type: 'list',
+//     message: 'Employee Manager?',
+//     name: 'empManager',
+//     choices: newEmpManager
+// }
+// ];
 
 const questionsUpdate = [ // get employee data?
 {
@@ -122,19 +126,117 @@ function init() {
 
 function viewEmployees(){
      // Query database
-db.query('SELECT * FROM employees', function (err, results) {
-    console.log(results);
+     const sql = 'SELECT * FROM employees'
+db.query(sql, (err, results) => {
+    if(err){
+        console.log(err)
+    }
+    console.table(results);
+    init()
   });
 }
+
+function addEmployee() {
+
+    const sqlEmpRole = 'SELECT * from employeeRoles';
+    const sqlEmpManager = 'SELECT * from employees';
+
+    const newEmpRole = []
+    const newEmpManager = []
+
+
+    db.query((sqlEmpRole)), (err, results) => {
+        if (err) {
+            throw (err)
+        }
+    }
+    results.forEach((res) => {
+        newEmpRole.push(res.emp_role)
+    });
+
+    db.query((sqlEmpManager)), (err, results) => {
+        if (err) {
+            throw (err)
+        }
+    }
+    results.forEach((res) => {
+        newEmpManager.push(res.manager_id)
+    });
+    
+    let questionsEmployee = [
+        {
+            type: 'input',
+            message: 'Employee first name?',
+            name: 'empFirstName',
+        },
+        {
+            type: 'input',
+            message: 'Employee last name?',
+            name: 'empLastName',
+        },
+        {
+            type: 'list',
+            message: 'Employee role?',
+            name: 'empRole',
+            choices: newEmpRole
+        },
+        {
+            type: 'list',
+            message: 'Employee Manager?',
+            name: 'empManager',
+            choices: newEmpManager
+        }
+        ];
+
+    inquirer.prompt(questionsEmployee)
+    .then((data) => {
+
+        const newEmployee = [data.empFirstName, data.empLastName, data.empRole, data.empManager]
+        console.log(newEmployee);
+        const sql = `INSERT INTO employees (first_name, last_name, emp_role, manager_id)
+              VALUES (?)`;
+
+            db.query(sql, newEmployee) 
+            if(err){
+                console.log(err)
+            }
+              console.log(`Added ${data.empFirstName} Success!`)
+              init();
+              })
+            };
+
+function viewDepartments() {
+    const sql = 'SELECT * FROM departments' ;
+    db.query (sql, (err, results) => {
+        if(err){
+            console.log(err)
+        }
+        console.table(results);
+        init();
+    })
+};
 
 function addDepartment() {
     inquirer.prompt(questionsDepartment)
     .then((data) => {
+
         const newDepartment = data.departmentName
-        //push newDepartment to Department table
-        init();
-    })
-}
+        const sql = `INSERT INTO departments (department_name)
+              VALUES (?)`;
+
+            db.query(sql, newDepartment) 
+            // (err, result) => {
+            //   if (err) {
+            //     res.status(400).json({ error: err.message });
+            //     return;
+            //   }
+              console.log(`Added ${newDepartment} Success!`)
+              init();
+              })
+            };
+        //     });
+        //     init();
+        //   };
 
 function addRole() {
     inquirer.prompt(questionsRole)
