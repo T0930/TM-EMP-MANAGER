@@ -83,19 +83,6 @@ const questionsRole = [
 // }
 // ];
 
-const questionsUpdate = [ // get employee data?
-    {
-        type: 'input',
-        message: 'Employee first name?',
-        name: 'existingName',
-    },
-    {
-        type: 'input',
-        message: 'Update role?',
-        name: 'updateRole',
-    }
-];
-
 
 function init() {
     inquirer.prompt(questionsMain)
@@ -140,75 +127,111 @@ function addEmployee() {
             init();
         })
 }
-
 function addEmployee() {
-
-    const sqlEmpRole = 'SELECT * from employeeRoles';
-    const sqlEmpManager = 'SELECT * from employees';
-
-    const newEmpRole = []
-    const newEmpManager = []
-
-
-    db.query((sqlEmpRole)), (err, results) => {
+        const sqlEmpRole = 'SELECT * from employeeRoles';
+        const sqlEmpManager = 'SELECT * from employees WHERE manager_id is null';
+    
+        let managerList = []
+        let newRoleList = []
+        
+    db.query(sqlEmpManager, (err, results) => {
         if (err) {
-            throw (err)
+            console.log(err)
         }
-    }
-    results.forEach((res) => {
-        newEmpRole.push(res.emp_role)
-    });
-
-    db.query((sqlEmpManager)), (err, results) => {
-        if (err) {
-            throw (err)
+        for (let i = 0; i < results.length; i++) {
+            managerList.push({ name: results[i].first_name + ' ,' + results[i].last_name , value: results[i].id })
         }
-    }
-    results.forEach((res) => {
-        newEmpManager.push(res.manager_id)
-    });
-
-    // let questionsEmployee = [
-    //     {
-    //         type: 'input',
-    //         message: 'Employee first name?',
-    //         name: 'empFirstName',
-    //     },
-    //     {
-    //         type: 'input',
-    //         message: 'Employee last name?',
-    //         name: 'empLastName',
-    //     },
-    //     {
-    //         type: 'list',
-    //         message: 'Employee role?',
-    //         name: 'empRole',
-    //         choices: newEmpRole
-    //     },
-    //     {
-    //         type: 'list',
-    //         message: 'Employee Manager?',
-    //         name: 'empManager',
-    //         choices: newEmpManager
-    //     }
-    //     ];
-
-    inquirer.prompt(questionsEmployee)
-        .then((data) => {
-
-            const newEmployee = [data.empFirstName, data.empLastName, data.empRole, data.empManager]
-            console.log(newEmployee);
-            const sql = `INSERT INTO employees (first_name, last_name, emp_role, manager_id)
-              VALUES (?)`;
-
-            db.query(sql, newEmployee)
+        db.query('SELECT id, emp_roles FROM employeeRoles', (err, results) => {
             if (err) {
                 console.log(err)
             }
-            console.log(`Added ${data.empFirstName} Success!`)
-            init();
-        })
+            for (let i = 0; i < results.length; i++) {
+                newRoleList.push({ name: results[i].emp_roles, value: results[i].id })
+            }
+                    inquirer.prompt([
+                        {
+                            type: 'input',
+                            message: 'Employee first name?',
+                            name: 'empFirstName',
+                        },
+                        {
+                            type: 'input',
+                            message: 'Employee last name?',
+                            name: 'empLastName',
+                        },
+                        {
+                            type: 'list',
+                            message: 'Select Manager',
+                            name: 'managerName',
+                            choices: managerList,
+                        },
+                        {
+                            type: 'list',
+                            message: 'Select Employee Role',
+                            name: 'updateRole',
+                            choices: newRoleList,
+                        }
+                    ])
+                        .then((data) => {
+                            console.log(data)
+                            db.query('INSERT INTO employees (first_name, last_name, emp_role, manager_id) VALUES (?,?,?,?);',
+                            [data.empFirstName, data. empLastName, data.managerName, data.updateRole],
+                            (err, results) => {
+                                if (err) {
+                                    console.log(err)
+                                }
+                                console.log(results)
+                            init();
+                        })
+                })
+})
+})
 };
+
+// function addEmployee() {
+
+//     const sqlEmpRole = 'SELECT * from employeeRoles';
+//     const sqlEmpManager = 'SELECT * from employees WHERE manager_id = null';
+
+//     const newEmpRole = []
+//     const newEmpManager = []
+
+
+//     db.query((sqlEmpRole)), (err, results) => {
+//         if (err) {
+//             throw (err)
+//         }
+//     }
+//     results.forEach((res) => {
+//         newEmpRole.push(res.emp_role)
+//     });
+
+//     db.query((sqlEmpManager)), (err, results) => {
+//         if (err) {
+//             throw (err)
+//         }
+//     }
+//     results.forEach((res) => {
+//         newEmpManager.push(res.manager_id)
+//     });
+
+
+//     inquirer.prompt(questionsEmployee)
+//         .then((data) => {
+
+//             const newEmployee = [data.empFirstName, data.empLastName, data.empRole, data.empManager]
+//             console.log(newEmployee);
+//             const sql = `INSERT INTO employees (first_name, last_name, emp_role, manager_id)
+//               VALUES (?)`;
+
+//             db.query(sql, newEmployee)
+//             if (err) {
+//                 console.log(err)
+//             }
+//             console.log(`Added ${data.empFirstName} Success!`)
+//             init();
+//         })
+// };
 
 function viewDepartments() {
     const sql = 'SELECT * FROM departments';
