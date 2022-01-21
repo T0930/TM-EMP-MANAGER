@@ -16,21 +16,12 @@ const { debuglog } = require('util');
 // Connect to database
 const db = mysql.createConnection(
     {
-<<<<<<< HEAD
         host: 'localhost',
         // MySQL username,
         user: 'tm',
         // MySQL password
         password: 'passWORD',
         database: 'business_db'
-=======
-      host: 'localhost',
-      // MySQL username,
-      user: '',
-      // MySQL password
-      password: '',
-      database: 'business_db'
->>>>>>> df225bb695e5fc1268c34c6469a2b59a96f9aed7
     },
     console.log(`Connected to the business_db database.`)
 );
@@ -139,6 +130,15 @@ function viewEmployees() {
         console.table(results);
         init()
     });
+}
+
+function addEmployee() {
+    inquirer.prompt(questionsEmployee)
+        .then((data) => {
+            const newEmployee = [data.empFirstName, data.empLastName, data.empRole, data.empManager]
+            // push newEmployee to Employee table
+            init();
+        })
 }
 
 function addEmployee() {
@@ -284,23 +284,51 @@ function addRole() {
         })};
 
 
-function addEmployee() {
-                    inquirer.prompt(questionsEmployee)
-                        .then((data) => {
-                            const newEmployee = [data.empFirstName, data.empLastName, data.empRole, data.empManager]
-                            // push newEmployee to Employee table
-                            init();
-                        })
-                }
-
 function updateRole() {
-                    inquirer.prompt(questionsUpdate)
+    let employeeList = []
+    let newRoleList = []
+    db.query('SELECT id, first_name, last_name FROM employees', (err, results) => {
+        if (err) {
+            console.log(err)
+        }
+        for (let i = 0; i < results.length; i++) {
+            employeeList.push({ name: results[i].first_name + ' ,' + results[i].last_name , value: results[i].id })
+        }
+        db.query('SELECT id, emp_roles FROM employeeRoles', (err, results) => {
+            if (err) {
+                console.log(err)
+            }
+            for (let i = 0; i < results.length; i++) {
+                newRoleList.push({ name: results[i].emp_roles, value: results[i].id })
+            }
+            console.log(employeeList);
+                    inquirer.prompt([
+                        {
+                            type: 'list',
+                            message: 'Select Employee',
+                            name: 'existingName',
+                            choices: employeeList,
+                        },
+                        {
+                            type: 'list',
+                            message: 'New Employee Role?',
+                            name: 'updateRole',
+                            choices: newRoleList,
+                        }
+                    ])
                         .then((data) => {
-                            const updateRole = data.updateRole
-                            //push updateRole to previous employee role
+                            console.log(data)
+                            db.query('UPDATE employees SET emp_role = ? WHERE id=?;',[data.updateRole, data.existingName],
+                            (err, results) => {
+                                if (err) {
+                                    console.log(err)
+                                }
                             init();
                         })
-                }
-
+                })
+})
+})
+};
+            
 
 init();
