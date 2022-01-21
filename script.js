@@ -16,12 +16,21 @@ const { debuglog } = require('util');
 // Connect to database
 const db = mysql.createConnection(
     {
+<<<<<<< HEAD
         host: 'localhost',
         // MySQL username,
         user: 'tm',
         // MySQL password
         password: 'passWORD',
         database: 'business_db'
+=======
+      host: 'localhost',
+      // MySQL username,
+      user: '',
+      // MySQL password
+      password: '',
+      database: 'business_db'
+>>>>>>> df225bb695e5fc1268c34c6469a2b59a96f9aed7
     },
     console.log(`Connected to the business_db database.`)
 );
