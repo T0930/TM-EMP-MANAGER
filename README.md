@@ -8,9 +8,6 @@
 * choose to view all departments which lists all departments that are currently within the database.
 * choose to view all roles which lists all roles that are currently within the database.
 * choose to view all employees which lists all employees that are currently within the database.
-* choose to add an e which lists all departments that are currently within the database.
-* add a department to the existing database
-* add a department to the existing database
 * can add a department entry to the existing database
 * can add an employee entry to the existing database
 * can add a role entry to the existing database
