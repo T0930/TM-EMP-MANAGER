@@ -1,17 +1,10 @@
-// const express = require('express');
+
 const mysql = require('mysql2');
 const inquirer = require('inquirer'); /// npm init -y /// npm i inquirer
-// const fs = require('fs');
 const { exit } = require('process');
 const cTable = require('console.table');
 const { debuglog } = require('util');
 
-
-// const PORT = process.env.PORT || 3001;
-// const app = express();
-
-// app.use(express.urlencoded({ extended: false }));
-// app.use(express.json());
 
 // Connect to database
 const db = mysql.createConnection(
@@ -22,9 +15,12 @@ const db = mysql.createConnection(
         // MySQL password
         password: 'passWORD',
         database: 'business_db'
-    },
+    })
+
+    db.connect(function(){
     console.log(`Connected to the business_db database.`)
-);
+    init()
+    })
 
 const questionsMain = [
     {
@@ -58,32 +54,6 @@ const questionsRole = [
     },
 ];
 
-// const questionsEmployee = [
-// {
-//     type: 'input',
-//     message: 'Employee first name?',
-//     name: 'empFirstName',
-// },
-// {
-//     type: 'input',
-//     message: 'Employee last name?',
-//     name: 'empLastName',
-// },
-// {
-//     type: 'list',
-//     message: 'Employee role?',
-//     name: 'empRole',
-//     choices: newEmpRole
-// },
-// {
-//     type: 'list',
-//     message: 'Employee Manager?',
-//     name: 'empManager',
-//     choices: newEmpManager
-// }
-// ];
-
-
 function init() {
     inquirer.prompt(questionsMain)
         .then((data) => {
@@ -102,7 +72,8 @@ function init() {
             } else if (data.optionsMain === 'Update employee role') {
                 updateRole();
             } else {
-                exit
+                db.end()
+                process.exit(0)
             }
         })
 }
@@ -188,51 +159,6 @@ function addEmployee() {
 })
 };
 
-// function addEmployee() {
-
-//     const sqlEmpRole = 'SELECT * from employeeRoles';
-//     const sqlEmpManager = 'SELECT * from employees WHERE manager_id = null';
-
-//     const newEmpRole = []
-//     const newEmpManager = []
-
-
-//     db.query((sqlEmpRole)), (err, results) => {
-//         if (err) {
-//             throw (err)
-//         }
-//     }
-//     results.forEach((res) => {
-//         newEmpRole.push(res.emp_role)
-//     });
-
-//     db.query((sqlEmpManager)), (err, results) => {
-//         if (err) {
-//             throw (err)
-//         }
-//     }
-//     results.forEach((res) => {
-//         newEmpManager.push(res.manager_id)
-//     });
-
-
-//     inquirer.prompt(questionsEmployee)
-//         .then((data) => {
-
-//             const newEmployee = [data.empFirstName, data.empLastName, data.empRole, data.empManager]
-//             console.log(newEmployee);
-//             const sql = `INSERT INTO employees (first_name, last_name, emp_role, manager_id)
-//               VALUES (?)`;
-
-//             db.query(sql, newEmployee)
-//             if (err) {
-//                 console.log(err)
-//             }
-//             console.log(`Added ${data.empFirstName} Success!`)
-//             init();
-//         })
-// };
-
 function viewDepartments() {
     const sql = 'SELECT * FROM departments';
     db.query(sql, (err, results) => {
@@ -253,18 +179,10 @@ function addDepartment() {
               VALUES (?)`;
 
             db.query(sql, newDepartment)
-            // (err, result) => {
-            //   if (err) {
-            //     res.status(400).json({ error: err.message });
-            //     return;
-            //   }
             console.log(`Added ${newDepartment} Success!`)
             init();
         })
 };
-//     });
-//     init();
-//   };
 
 function viewRoles() {
     const sql = 'SELECT * FROM employeeRoles';
@@ -354,4 +272,4 @@ function updateRole() {
 };
             
 
-init();
+// init();
